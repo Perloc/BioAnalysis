@@ -67,7 +67,7 @@ removeDuplication <- function(dat) {
 #' @export
 #'
 #' @examples
-clust <- function(expr_mat, clust_method) {
+clust <- function(expr_mat, clust_method = "complete") {
   dat <- t(expr_mat)
   dat <- as.data.frame(dat)
   datExpr_tree <- hclust(dist(dat), method = clust_method)
@@ -138,7 +138,7 @@ WGCNA <- function(expr_mat, traits_mat) {
 
   # 可视化
   moduleColors = labels2colors(net$colors)
-  plot <- plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
+  plot <- plotDendroAndColors(net$dendrograms[[1]], moduleColors[net$blockGenes[[1]]],
                       "Module colors",
                       dendroLabels = FALSE, hang = 0.03,
                       addGuide = TRUE, guideHang = 0.05)
@@ -173,7 +173,8 @@ WGCNA <- function(expr_mat, traits_mat) {
   return(list(MEs = MEs,
               moduleColors = moduleColors,
               geneModuleMembership = geneModuleMembership,
-              geneTraitCor = geneTraitCor))
+              geneTraitCor = geneTraitCor,
+              power = power))
 }
 
 #' 画WGCNA分析的散点图
