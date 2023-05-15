@@ -115,7 +115,7 @@ WGCNA <- function(expr_mat, traits_mat) {
   allowWGCNAThreads()
 
   dat <- t(expr_mat)
-  power <- computeSoftThreshold1(dat)
+  power <- computeSoftThreshold(dat)
 
   cor <- WGCNA::cor
   net = blockwiseModules(
