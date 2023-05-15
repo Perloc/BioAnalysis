@@ -342,7 +342,7 @@ matchEntrezID <- function(DA_result, anno) {
 #' @export
 #'
 #' @examples
-GSEAnalysis <- function(DA_result) {
+GSEAnalysis <- function(DA_result, pvalueCutoff = 0.05) {
   foldchanges <- DA_result$result$logFC
   names(foldchanges) <- DA_result$result$ENTREZID
   foldchanges <- sort(foldchanges, decreasing = TRUE)
@@ -354,10 +354,15 @@ GSEAnalysis <- function(DA_result) {
                       pvalueCutoff = 0.05,
                       verbose = FALSE)
 
-  dotplot(gseaKEGG, split = ".sign") + facet_grid(~.sign)
+  if (dim(gseaKEGG)[1] == 0) {
+    print("no term enriched under specific pvalueCutoff...")
+  }
+  else {
+    dotplot(gseaKEGG, split = ".sign") + facet_grid(~.sign)
 
-  # 提取GSEA的结果
-  gseaKEGG_results <- gseaKEGG@result
-  # 将结果写入csv文件
-  write.csv(gseaKEGG_results, "GSEAresults.csv", quote=F)
+    # 提取GSEA的结果
+    gseaKEGG_results <- gseaKEGG@result
+    # 将结果写入csv文件
+    write.csv(gseaKEGG_results, "GSEAresults.csv", quote=F)
+  }
 }
