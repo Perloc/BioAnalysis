@@ -229,7 +229,7 @@ WGCNAScatterPlot <- function(result, traits_mat, module, pheno) {
   modNames <- substring(colnames(result$MEs), 3)
   module_column <- match(module, modNames)
   pheno_column <- match(pheno, colnames(traits_mat))
-  moduleGenes <- moduleColors == module
+  moduleGenes <- result$moduleColors == module
 
   # 画图
   sizeGrWindow(7, 7)
