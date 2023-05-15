@@ -253,8 +253,7 @@ WGCNAScatterPlot <- function(result, traits_mat, module, pheno) {
 #'
 #' @examples
 getModuleGenes <- function(expr_mat, result, module) {
-  dat <- t(expr_mat)
-  probes <- names(expr_mat)
+  probes <- rownames(expr_mat)
   inModule <- (result$moduleColors %in% module)
   modProbes <- probes[inModule]
   return(expr_mat[rownames(expr_mat) %in% modProbes, ])
