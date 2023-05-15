@@ -13,6 +13,7 @@ library(WGCNA)
 library(ggplot2)
 library(ggrepel)
 library(tidyverse)
+devtools::document()
 
 
 #' 读取芯片数据并进行标准化和背景校正
@@ -121,16 +122,14 @@ WGCNA <- function(expr_mat, traits_mat) {
   allowWGCNAThreads()
 
   dat <- t(expr_mat)
-  nGenes = ncol(dat)
-  nSamples = nrow(dat)
-  power <- computeSoftThreshold(dat)
+  power <- computeSoftThreshold1(dat)
 
   cor <- WGCNA::cor
   net = blockwiseModules(
     dat,
     power = power,
     maxBlockSize = 5000,
-    TOMType = "unsigned", minModuleSize = 30,
+    TOMType = "unsigned", minModuleSize = 200,
     reassignThreshold = 0, mergeCutHeight = 0.25,
     numericLabels = TRUE, pamRespectsDendro = FALSE,
     verbose = 3
@@ -138,27 +137,81 @@ WGCNA <- function(expr_mat, traits_mat) {
 
   # 可视化
   moduleColors = labels2colors(net$colors)
-  plot <- plotDendroAndColors(net$dendrograms[[1]], moduleColors[net$blockGenes[[1]]],
+  plotDendroAndColors(net$dendrograms[[1]], moduleColors[net$blockGenes[[1]]],
                       "Module colors",
                       dendroLabels = FALSE, hang = 0.03,
                       addGuide = TRUE, guideHang = 0.05)
-  ggsave("WGCNA_1_ModuleColors.pdf", plot)
 
   MEs0 <- moduleEigengenes(dat, moduleColors)$eigengenes
   MEs <- orderMEs(MEs0)
+  MEDiss <- 1 - cor(MEs)
+  METree <- hclust(as.dist(MEDiss), method = "average")
+  plot(METree, main = "Clustering of module eigengenes",
+       xlab = "", sub = "")
+
+  geneTraitCor <- as.data.frame(cor(dat, traits_mat, use = "p"))
+
+  return(list(moduleColors = moduleColors,
+              geneTraitCor = geneTraitCor,
+              power = power))
+}
+
+#' Title
+#'
+#' 根据cut高度合并module
+#'
+#' @param expr_mat 表达矩阵
+#' @param WGCNA_result WGCNA分析结果
+#' @param cutHeightThres cut阈值
+#'
+#' @return
+#' @export
+#'
+#' @examples
+WGCNAMergeModule <- function(expr_mat, WGCNA_result, cutHeightThres = 0.4) {
+  dat <- t(expr_mat)
+  moduleColors <- WGCNA_result$moduleColors
+
+  merge <- mergeCloseModules(dat, moduleColors, cutHeight = cutHeightThres, verbose = 3)
+  mergedColors <- merge$colors
+  mergedMEs <- merge$newMEs
+
+  geneModuleMembership <- as.data.frame(cor(dat, mergedMEs, use = "p"))
+
+  WGCNA_result$geneModuleMembership <- geneModuleMembership
+  WGCNA_result$moduleColors <- mergedColors
+  WGCNA_result$MEs <- mergedMEs
+  return(WGCNA_result)
+}
+
+#' Title
+#'
+#' 画出module与性状的相关性热图
+#'
+#' @param WGCNA_result WGCNA分析结果
+#' @param traits_mat 性状矩阵
+#'
+#' @return
+#' @export
+#'
+#' @examples
+WGCNAHeatmap <- function(WGCNA_result, traits_mat) {
+  MEs <- WGCNA_result$MEs
+  moduleTraitCor <- WGCNA_result$geneTraitCor
+
   moduleTraitCor <- cor(MEs, traits_mat, use = "p")
-  moduleTraitPvalue <- corPvalueStudent(moduleTraitCor, nSamples)
+  moduleTraitPvalue <- corPvalueStudent(moduleTraitCor, nrow(traits_mat))
   sizeGrWindow(10, 6)
   # Will display correlations and their p-values
   textMatrix <- paste(signif(moduleTraitCor, 2), "\n(",
-                     signif(moduleTraitPvalue, 1), ")", sep = "")
+                      signif(moduleTraitPvalue, 1), ")", sep = "")
   dim(textMatrix) <- dim(moduleTraitCor)
   par(mar = c(6, 8.5, 3, 3))
   # 模块与性状的相关性热图
   labeledHeatmap(Matrix = moduleTraitCor,
-                 xLabels = names(design),
-                 yLabels = names(MEs),
-                 ySymbols = names(MEs),
+                 xLabels = colnames(traits_mat),
+                 yLabels = row.names(moduleTraitCor),
+                 ySymbols = row.names(moduleTraitCor),
                  colorLabels = FALSE,
                  colors = greenWhiteRed(50),
                  textMatrix = textMatrix,
@@ -166,15 +219,6 @@ WGCNA <- function(expr_mat, traits_mat) {
                  cex.text = 0.5,
                  zlim = c(-1,1),
                  main = paste("Module-trait relationships"))
-
-  geneModuleMembership <- as.data.frame(cor(dat, MEs, use = "p"))
-  geneTraitCor <- as.data.frame(cor(dat, traits_mat, use = "p"))
-
-  return(list(MEs = MEs,
-              moduleColors = moduleColors,
-              geneModuleMembership = geneModuleMembership,
-              geneTraitCor = geneTraitCor,
-              power = power))
 }
 
 #' 画WGCNA分析的散点图
@@ -189,7 +233,6 @@ WGCNA <- function(expr_mat, traits_mat) {
 #'
 #' @examples
 WGCNAScatterPlot <- function(result, traits_mat, module, pheno) {
-  dat <- t(expr_mat)
   modNames <- substring(colnames(result$MEs), 3)
   module_column <- match(module, modNames)
   pheno_column <- match(pheno, colnames(traits_mat))
@@ -218,8 +261,10 @@ WGCNAScatterPlot <- function(result, traits_mat, module, pheno) {
 #' @examples
 getModuleGenes <- function(expr_mat, result, module) {
   dat <- t(expr_mat)
+  probes <- names(expr_mat)
   inModule <- (result$moduleColors %in% module)
-  return(expr_mat[inModule])
+  modProbes <- probes[inModule]
+  return(expr_mat[rownames(expr_mat) %in% modProbes, ])
 }
 
 ### 差异分析 ###
@@ -239,7 +284,7 @@ getModuleGenes <- function(expr_mat, result, module) {
 #' @examples
 limmaAnalysis <- function(expr_mat, traits_mat, contrasts, item = 1, pcutoff = 0.05, lfc = 0,
                           title = "Volcano Plot") {
-  fit <- lmFit(counts, design)
+  fit <- lmFit(expr_mat, design)
   fit2 <- contrasts.fit(fit, contrasts)
   fit2 <- eBayes(fit2, trend=TRUE)
 
