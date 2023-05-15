@@ -1,8 +1,3 @@
-library(clusterProfiler)
-library(ggplot2)
-library(ggthemes)
-library(org.Hs.eg.db)
-
 
 go_kegg_plot <- function(up.data, down.data, method = "GO", n = 5) {
   if (n < nrow(up.data)) {

@@ -8,13 +8,6 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-library(limma)
-library(WGCNA)
-library(ggplot2)
-library(ggrepel)
-library(tidyverse)
-devtools::document()
-
 
 #' 读取芯片数据并进行标准化和背景校正
 #'

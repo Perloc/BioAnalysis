@@ -4,7 +4,7 @@
 \alias{clust}
 \title{画出聚类图}
 \usage{
-clust(expr_mat, clust_method)
+clust(expr_mat, clust_method = "complete")
 }
 \arguments{
 \item{expr_mat}{表达矩阵}
