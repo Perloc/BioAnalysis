@@ -54,7 +54,7 @@ go_kegg_plot <- function(up.data, down.data, method = "GO", n = 5) {
 #' @examples
 enrich_split <- function(up, down, method = "GO", n = 5) {
   if (method == "GO") {
-    cluster_up <- enrichGO(gene = up$Entrez_Gene_ID,
+    cluster_up <- enrichGO(gene = up$ENTREZID,
                            # universe = all_genes,
                            keyType = "ENTREZID", # ENSEMBL, SYMBOL
                            OrgDb = org.Hs.eg.db,
@@ -63,7 +63,7 @@ enrich_split <- function(up, down, method = "GO", n = 5) {
                            pvalueCutoff = 0.05,
                            qvalueCutoff = 0.2,
                            readable = TRUE)
-    cluster_down <- enrichGO(gene = down$Entrez_Gene_ID,
+    cluster_down <- enrichGO(gene = down$ENTREZID,
                              # universe = all_genes,
                              keyType = "ENTREZID", # ENSEMBL, SYMBOL
                              OrgDb = org.Hs.eg.db,
@@ -73,14 +73,14 @@ enrich_split <- function(up, down, method = "GO", n = 5) {
                              qvalueCutoff = 0.2,
                              readable = TRUE)
   } else {
-    cluster_up <- enrichKEGG(gene = up$Entrez_Gene_ID,
+    cluster_up <- enrichKEGG(gene = up$ENTREZID,
                              use_internal_data = F,
                              keyType = 'kegg',  # KEGG 富集
                              organism = 'hsa',  # 物种名称
                              pAdjustMethod = 'none',  # 指定p值校正方法
                              pvalueCutoff = 0.05,  #指定p值阈值（可指定 1 以输出全部）
                              qvalueCutoff = 0.2)  #指定q值阈值（可指定 1 以输出全部）
-    cluster_down <- enrichKEGG(gene = down$Entrez_Gene_ID,
+    cluster_down <- enrichKEGG(gene = down$ENTREZID,
                                use_internal_data = F,
                                keyType = 'kegg',  # KEGG 富集
                                organism = 'hsa',  # 物种名称

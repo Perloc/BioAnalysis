@@ -284,7 +284,7 @@ getModuleGenes <- function(expr_mat, result, module) {
 #' @examples
 limmaAnalysis <- function(expr_mat, traits_mat, contrasts, item = 1, pcutoff = 0.05, lfc = 0,
                           title = "Volcano Plot") {
-  fit <- lmFit(expr_mat, design)
+  fit <- lmFit(expr_mat, traits_mat)
   fit2 <- contrasts.fit(fit, contrasts)
   fit2 <- eBayes(fit2, trend=TRUE)
 
