@@ -42,12 +42,13 @@ go_kegg_plot <- function(up.data, down.data, method = "GO", n = 5) {
 #' @param down 带EntrezID列的下调基因
 #' @param method "GO" / "KEGG"
 #' @param n 图中显示项的数量
+#' @param pvaluecutoff pvalue阈值
 #'
 #' @return
 #' @export
 #'
 #' @examples
-enrich_split <- function(up, down, method = "GO", n = 5) {
+enrich_split <- function(up, down, method = "GO", pvaluecutoff = 0.05, n = 5) {
   if (method == "GO") {
     cluster_up <- enrichGO(gene = up$ENTREZID,
                            # universe = all_genes,
@@ -55,7 +56,7 @@ enrich_split <- function(up, down, method = "GO", n = 5) {
                            OrgDb = org.Hs.eg.db,
                            ont = "ALL",
                            pAdjustMethod = "BH",
-                           pvalueCutoff = 0.05,
+                           pvalueCutoff = pvaluecutoff,
                            qvalueCutoff = 0.2,
                            readable = TRUE)
     cluster_down <- enrichGO(gene = down$ENTREZID,
@@ -64,7 +65,7 @@ enrich_split <- function(up, down, method = "GO", n = 5) {
                              OrgDb = org.Hs.eg.db,
                              ont = "ALL",
                              pAdjustMethod = "BH",
-                             pvalueCutoff = 0.05,
+                             pvalueCutoff = pvaluecutoff,
                              qvalueCutoff = 0.2,
                              readable = TRUE)
   } else {
@@ -73,14 +74,14 @@ enrich_split <- function(up, down, method = "GO", n = 5) {
                              keyType = 'kegg',  # KEGG 富集
                              organism = 'hsa',  # 物种名称
                              pAdjustMethod = 'none',  # 指定p值校正方法
-                             pvalueCutoff = 0.05,  #指定p值阈值（可指定 1 以输出全部）
+                             pvalueCutoff = pvaluecutoff,  #指定p值阈值（可指定 1 以输出全部）
                              qvalueCutoff = 0.2)  #指定q值阈值（可指定 1 以输出全部）
     cluster_down <- enrichKEGG(gene = down$ENTREZID,
                                use_internal_data = F,
                                keyType = 'kegg',  # KEGG 富集
                                organism = 'hsa',  # 物种名称
                                pAdjustMethod = 'none',  # 指定p值校正方法
-                               pvalueCutoff = 0.05,  #指定p值阈值（可指定 1 以输出全部）
+                               pvalueCutoff = pvaluecutoff,  #指定p值阈值（可指定 1 以输出全部）
                                qvalueCutoff = 0.2)  #指定q值阈值（可指定 1 以输出全部）
   }
 

@@ -306,6 +306,7 @@ limmaAnalysis <- function(expr_mat, traits_mat, contrasts, item = 1, pcutoff = 0
   p <- p + geom_text_repel(up, mapping = aes(x = logFC, y = -log10(P.Value), label = genelabels))
   p <- p + geom_text_repel(down, mapping = aes(x = logFC, y = -log10(P.Value), label = genelabels))
   ggsave("Volcano_Plot.pdf", p)
+  print("火山图已保存在文件夹下（Volcano_Plot.pdf）")
 
   return(list(result = result, up = up, down = down))
 }
@@ -355,7 +356,7 @@ GSEAnalysis <- function(DA_result, pvalueCutoff = 0.05) {
                       verbose = FALSE)
 
   if (dim(gseaKEGG)[1] == 0) {
-    print("no term enriched under specific pvalueCutoff...")
+    print("指定pvalue下没有富集结果")
   }
   else {
     dotplot(gseaKEGG, split = ".sign") + facet_grid(~.sign)
@@ -364,5 +365,6 @@ GSEAnalysis <- function(DA_result, pvalueCutoff = 0.05) {
     gseaKEGG_results <- gseaKEGG@result
     # 将结果写入csv文件
     write.csv(gseaKEGG_results, "GSEAresults.csv", quote=F)
+    print("结果已存储在文件夹中")
   }
 }

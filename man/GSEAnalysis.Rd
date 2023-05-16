@@ -4,7 +4,7 @@
 \alias{GSEAnalysis}
 \title{GSEA分析}
 \usage{
-GSEAnalysis(DA_result)
+GSEAnalysis(DA_result, pvalueCutoff = 0.05)
 }
 \arguments{
 \item{DA_result}{limma差异分析结果}

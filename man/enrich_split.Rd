@@ -4,7 +4,7 @@
 \alias{enrich_split}
 \title{对up和down分别进行GO/KEGG分析}
 \usage{
-enrich_split(up, down, method = "GO", n = 5)
+enrich_split(up, down, method = "GO", pvaluecutoff = 0.05, n = 5)
 }
 \arguments{
 \item{up}{带EntrezID列的上调基因}
@@ -12,6 +12,8 @@ enrich_split(up, down, method = "GO", n = 5)
 \item{down}{带EntrezID列的下调基因}
 
 \item{method}{"GO" / "KEGG"}
+
+\item{pvaluecutoff}{pvalue阈值}
 
 \item{n}{图中显示项的数量}
 }
